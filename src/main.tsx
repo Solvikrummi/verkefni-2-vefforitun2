@@ -1,6 +1,8 @@
 import { Hono } from 'hono';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { TodoPage } from './components/TodoPage.js';
+import type {Todo} from './types.js';
+import { listTodos } from './lib/db.js';
 
 // búum til og exportum Hono app
 export const app = new Hono();
@@ -9,5 +11,24 @@ export const app = new Hono();
 app.use('/static/*', serveStatic({ root: './' }));
 
 app.get('/', async (c) => {
-  return c.html(<TodoPage todos={[1, 2, 3]} />);
+  const todos = await listTodos()
+
+
+  if (!todos){
+    console.log('villa við að sækja todos', todos)
+    return c.text('villa!')
+  }
+
+  return c.html(<TodoPage todos={todos} />);
+});
+
+app.post('/add', async (c) => {
+  const body = await c.req.parseBody();
+  console.log(body)
+
+  const title = body.title
+
+  
+
+  return c.text('póst móttekið!')
 });
